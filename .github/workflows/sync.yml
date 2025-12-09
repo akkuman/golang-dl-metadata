@@ -1,0 +1,32 @@
+name: sync
+
+on:
+  workflow_dispatch: # Allow manual trigger
+  schedule:
+    - cron: '5 4 * * *' # At 04:05 (UTC)
+
+env:
+  UPSTREAM_METADATA: "https://go.dev/dl/?mode=json&include=all"
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # Fetch full history
+
+      - name: Sync upstream metadata
+        run: |
+          curl -o metadata.json "$UPSTREAM_METADATA"
+
+          # Commit the metadata.json file
+          git add metadata.json
+          if git diff-index --quiet HEAD --; then
+            echo "No metadata changes to commit"
+          else
+            git commit -m "auto: sync upstream metadata"
+            git push
+            echo "Metadata changes committed and pushed"
+          fi
