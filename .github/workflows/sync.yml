@@ -21,6 +21,9 @@ jobs:
         run: |
           curl -o metadata.json "$UPSTREAM_METADATA"
 
+          # Configure Git user
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
           # Commit the metadata.json file
           git add metadata.json
           if git diff-index --quiet HEAD --; then
